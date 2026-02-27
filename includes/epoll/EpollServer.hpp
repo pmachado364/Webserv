@@ -1,4 +1,5 @@
-#include "utils.hpp"
+#pragma once
+
 #include <iostream>
 #include <string>
 #include <sys/epoll.h>
@@ -26,6 +27,7 @@ private:
     void _bindAndListen();
     void _registerToEpoll(int fd, uint32_t events);
     void _acceptNewClient();
+    void _handleClientData(int fd);
 
 public:
     EpollServer(const std::string &host, int port);

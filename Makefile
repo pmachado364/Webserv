@@ -7,6 +7,7 @@ NAME		= webserv
 CXX			= c++
 CXXFLAGS	= -Wall -Wextra -Werror -Wshadow -std=c++98
 INCLUDES	= -I./includes
+INCLUDES	+= -I./includes/http
 INCLUDES	+= -I./includes/epoll
 
 #==============================================================================#
@@ -18,7 +19,7 @@ OBJ_DIR		= obj
 
 VPATH =		$(SRC_DIR)
 VPATH +=	$(SRC_DIR)/epoll
-#VPATH +=	$(SRC_DIR)/http
+VPATH +=	$(SRC_DIR)/http
 #VPATH +=	$(SRC_DIR)/file_config
 
 #==============================================================================#
@@ -31,18 +32,19 @@ GENERAL	+=	utils.cpp
 EPOLL = EpollServer.cpp
 #EPOLL += EpollClient.cpp
 
-HTTP = http.cpp
+HTTP =	HttpRequest.cpp
+HTTP +=	HttpParser.cpp
 
-FILE_CONFIG	= file_config.cpp
+#FILE_CONFIG	= file_config.cpp
 
 SRC	=	$(GENERAL)
+SRC	+=	$(HTTP)
 SRC	+=	$(EPOLL)
-#SRC	+=	$(HTTP)
 #SRC	+=	$(FILE_CONFIG)
 
 OBJ			= $(SRC:%.cpp=$(OBJ_DIR)/%.o)
 
-SRC_BONUS	= $(SRC)
+#SRC_BONUS	= $(SRC)
 #OBJ_BONUS	= $(SRC_BONUS:%.cpp=$(OBJ_DIR)/%.o)
 
 #==============================================================================#

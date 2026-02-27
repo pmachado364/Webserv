@@ -1,4 +1,5 @@
 #include "EpollServer.hpp"
+#include "HttpParser.hpp"
 
 EpollServer::EpollServer(const std::string &host, int port) : _listenFd(-1), _epollFd(-1), _port(port), _host(host) {}
 EpollServer::~EpollServer() {}
@@ -68,9 +69,10 @@ void EpollServer::_acceptNewClient()
         }
 
         _setNonBlocking(client_fd);
-
+        _registerToEpoll(client_fd, EPOLLIN);
         std::cout << "New Client fd = " << client_fd << std::endl;
-        // close(client_fd);
+        //close(client_fd);
+        //TODO: probably it needs to be passed information to HttpParser here
     }
 }
 
@@ -83,6 +85,38 @@ void EpollServer::init()
     _registerToEpoll(_listenFd, EPOLLIN);
 
     utils::log_info("Server listening");
+}
+
+void EpollServer::_handleClientData(int fd) {
+    HttpParser parser;
+    char buffer[10000];
+
+    ssize_t bytesRead = read(fd, buffer, sizeof(buffer));
+    if (bytesRead <= 0) {
+        return;
+    }
+    buffer[bytesRead] = '\0';
+
+    bool complete = parser.feed(buffer);
+    if (complete) {
+        std::cout << "\n=== Request Complete ===" << std::endl;
+        parser.getRequest().print(std::cout);
+    } else if (parser.getState() == PARSE_ERROR) {
+        std::cout << "\n=== Parse Error ===" << std::endl;
+        parser.getRequest().print(std::cout);
+    }
+
+    // Make this more dynamic with custom variables on task 2
+    std::ostringstream oss;
+    HttpRequest request = parser.getRequest();
+    oss << request.getVersion() << " " << request.getErrorCode() << " OK\r\n"
+        << "Content-Type: text/plain\r\n"
+        << "Content-Length: " << "11" << "\r\n"
+        << "Connection: close\r\n"
+        << "\r\n"
+        << "Hello World";
+    std::string response = oss.str();
+    write(fd, response.c_str(), response.size());
 }
 
 void EpollServer::run()
@@ -104,6 +138,10 @@ void EpollServer::run()
 
             if (fd == _listenFd)
                 _acceptNewClient();
+            else {
+                _handleClientData(fd);
+                close(fd);
+            }
         }
     }
 }

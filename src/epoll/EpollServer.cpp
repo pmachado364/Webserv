@@ -215,7 +215,8 @@ void EpollServer::_createResponse(int fd, bool complete, ClientData &data)
     {
         if (statusCode >= 400)
             responseStr = response.buildError(statusCode, request);
-        else {
+        else
+        {
             // Get the root directory from config
             ServerConfig* config = _fdToConfig[data.server_fd];
             
@@ -244,7 +245,7 @@ void EpollServer::_createResponse(int fd, bool complete, ClientData &data)
     }
     else
         responseStr = response.buildError(400, request); // Incomplete request, treat as bad request
-    
+
     if (responseStr.empty())
         responseStr = response.serialize(request.getMethod());
     data.send_buf = responseStr;

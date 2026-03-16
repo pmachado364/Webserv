@@ -1,6 +1,8 @@
 #include "HttpResponse.hpp"
 #include "HttpRequest.hpp"
 #include "HttpRouter.hpp"
+#include <sys/stat.h>
+#include <unistd.h>
 
 //define the static member
 std::map<int, std::string> HttpResponse::_codeMsg;
@@ -64,7 +66,7 @@ std::string HttpResponse::_getMimeType(const std::string& path)
         return "application/octet-stream";
     
     std::string ext = path.substr(dot);
-    if (ext == ".html" || ext == ".htm") return "text/html";
+    if (ext == ".html" || ext == ".htm") return "text/html; charset=utf-8";
     if (ext == ".css") return "text/css";
     if (ext == ".js") return "application/javascript";
     if (ext == ".json") return "application/json";
@@ -73,7 +75,7 @@ std::string HttpResponse::_getMimeType(const std::string& path)
     if (ext == ".gif") return "image/gif";
     if (ext == ".svg") return "image/svg+xml";
     if (ext == ".ico") return "image/x-icon";
-    if (ext == ".txt") return "text/plain";
+    if (ext == ".txt") return "text/plain; charset=utf-8";
     if (ext == ".xml") return "application/xml";
     if (ext == ".pdf") return "application/pdf";
     if (ext == ".mp4") return "video/mp4";
@@ -82,7 +84,6 @@ std::string HttpResponse::_getMimeType(const std::string& path)
 
 bool HttpResponse::_fileExists(const std::string& path)
 {
-    std::cout << "Checking file existence: " << path << std::endl;
     std::ifstream file(path.c_str());
     return file.good();
 }
@@ -104,13 +105,27 @@ std::string HttpResponse::replaceAll(std::string str, const std::string& from, c
 }
 
 std::string HttpResponse::_readFile(const std::string& path) const {
-    std::ifstream file(path.c_str());
-    if (!file.is_open())
-        return "";
-
+    std::ifstream file(path.c_str(), std::ios::in | std::ios::binary);
     std::stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
+}
+
+int HttpResponse::checkFile(const std::string& path) const {
+    struct stat st;
+
+    if (stat(path.c_str(), &st) != 0)
+        return 404; // Not Found
+    if(S_ISDIR(st.st_mode)) //is a directory
+        return 300; //
+    if (!(S_ISREG(st.st_mode))) //is not a reg file
+        return 500;
+    if (access(path.c_str(), R_OK) != 0) //if a dir then can i read it?
+        return 403; // Forbidden
+    std::ifstream file(path.c_str(), std::ios::binary);
+    if (!file.is_open())
+        return 500; // other
+    return 200; // OK
 }
 
 std::string HttpResponse::buildFromFile(const HttpRequest& request, const std::string& filePath) {
@@ -119,8 +134,8 @@ std::string HttpResponse::buildFromFile(const HttpRequest& request, const std::s
     if (_version.empty())
         _version = "HTTP/1.1";
 
-    std::cout << "Serving resolved path: " << filePath << std::endl;
     std::string path = filePath;
+
     // If path ends with /, try to serve index.html
     if (!path.empty() && path[path.size() - 1] == '/')
         path += "index.html";
@@ -128,16 +143,30 @@ std::string HttpResponse::buildFromFile(const HttpRequest& request, const std::s
     else if (_fileExists(path + "/index.html"))
         path += "/index.html";
 
-    // Check if file exists
-    if (_fileExists(path)) {
-        std::string body = _readFile(path);
-        _statusCode = 200;
-        _body = body;
-        _contentType = _getMimeType(path);
-        return serialize(request.getMethod());
+    int checkError = checkFile(path);
+    if (checkError == 404 || checkError == 403 || checkError == 500)
+        return buildError(checkError, request);
+
+    else if (checkError == 300) {
+        // option 1: redirect if path does not end with '/'
+        if (path[path.size() - 1] != '/') {
+            _statusCode = 301;
+            path += '/';
+            return serialize(request.getMethod());
+        }
+        // option 2: try to serve index.html inside dir
+        std::string indexPath = filePath + "index.html";
+        int indexCheck = checkFile(indexPath);
+        if (indexCheck == 200)
+            path = indexPath;
+        else
+            return buildError(403, request); // Forbidden if no index.html in dir
     }
-    else
-        return buildError(404, request);
+    _body = _readFile(path);
+    _contentType = _getMimeType(path);
+    _statusCode = 200;
+    return serialize(request.getMethod());
+
 }
 
 std::string HttpResponse::buildError(int statusCode, const HttpRequest& request) {

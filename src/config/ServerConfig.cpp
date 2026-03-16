@@ -1,14 +1,17 @@
 #include "ServerConfig.hpp"
 #include "utils.hpp"
 #include <algorithm>
+#include <iostream>
 
 ServerConfig::ServerConfig() : _client_max_body_size(1024 * 1024) {} // 1MB
 
-static bool compareLocationLength(const LocationConfig& a, const LocationConfig& b) {
+static bool compareLocationLength(const LocationConfig &a, const LocationConfig &b)
+{
 	return a.path.length() > b.path.length();
 }
-void ServerConfig::sortLocations() {
-	std::sort(_locations.begin(), _locations.end(),compareLocationLength);
+void ServerConfig::sortLocations()
+{
+	std::sort(_locations.begin(), _locations.end(), compareLocationLength);
 }
 
 // Getters

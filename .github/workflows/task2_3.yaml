@@ -295,6 +295,7 @@ jobs:
           cat > config/test2_prefix.conf << 'EOF'
           server {
               listen 0.0.0.0:8080;
+              root /;
               location /api {
                   root /www/api;
                   methods GET;
@@ -366,6 +367,7 @@ jobs:
           cat > config/test3_methods.conf << 'EOF'
           server {
               listen 0.0.0.0:8080;
+              root /;
               location /readonly {
                   root /www/readonly;
                   methods GET;

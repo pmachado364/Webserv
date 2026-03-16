@@ -3,6 +3,7 @@
 #include "LocationConfig.hpp"
 #include "utils.hpp"
 #include <stdexcept>
+#include <iostream>
 
 void ConfigParser::parseLocation(ServerConfig &serverBlock)
 {

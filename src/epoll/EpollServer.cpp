@@ -5,6 +5,7 @@
 #include "HttpRouter.hpp"
 #include <fstream>
 #include <sstream>
+#include <sys/stat.h>
 
 EpollServer::EpollServer() : _epollFd(-1)
 {
@@ -228,7 +229,7 @@ void EpollServer::_createResponse(int fd, bool complete, ClientData &data)
                 response.setLocation(match.redirectTarget);
                 responseStr = response.serialize(request.getMethod());
             }
-            if (match.errorCode == 405) {
+            else if (match.errorCode == 405) {
                 response.build(405, "", "", request.getVersion());
                 response.setAllow(match.location->methods); // allowed methods
                 responseStr = response.serialize(request.getMethod());
@@ -240,7 +241,13 @@ void EpollServer::_createResponse(int fd, bool complete, ClientData &data)
                 responseStr = response.buildError(501, request);
             }
             else
-                responseStr = response.buildFromFile(request, match.path);
+            {
+                struct stat st;
+                if (stat(match.path.c_str(), &st) == 0 && S_ISDIR(st.st_mode))
+                    responseStr = response.buildFromDirectory(request, match.path, match.autoindex);
+                else
+                    responseStr = response.buildFromFile(request, match.path);
+            }
         }
     }
     else

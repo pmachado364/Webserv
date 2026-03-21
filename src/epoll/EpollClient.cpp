@@ -139,7 +139,7 @@ void EpollClient::_createResponse(bool complete)
 
     if (!complete)
     {
-        responseStr = response.buildError(400, request);
+        responseStr = response.buildError(400, request, *_config);
         _closeAfterSend = true;
     }
     else if (!_buildErrorResponse(request, response, responseStr))
@@ -173,7 +173,7 @@ bool EpollClient::_buildErrorResponse(const HttpRequest &request, HttpResponse &
 
     if (_parser.getState() == PARSE_ERROR || statusCode >= 400)
     {
-        responseStr = response.buildError(statusCode, request);
+        responseStr = response.buildError(statusCode, request, *_config);
         _closeAfterSend = true;
         return true;
     }
@@ -200,23 +200,47 @@ void EpollClient::_buildRoutedResponse(const HttpRequest &request, HttpResponse 
     }
     else if (match.errorCode != 0)
     {
-        responseStr = response.buildError(match.errorCode, request);
+        responseStr = response.buildError(match.errorCode, request, *_config);
         _closeAfterSend = true;
     }
     else if (match.executeCGI)
     {
-        responseStr = response.buildError(501, request);
+        responseStr = response.buildError(501, request, *_config);
     }
     else
     {
-        struct stat st;
-
-        if (stat(match.path.c_str(), &st) == 0 && S_ISDIR(st.st_mode))
-            responseStr = response.buildFromDirectory(request, match.path, match.autoindex);
-        else
-            responseStr = response.buildFromFile(request, match.path);
-        if (response.getStatusCode() >= 400)
+        if (request.getMethod() == METHOD_POST && match.location != NULL &&
+            match.location->has_client_max_body_size &&
+            request.getBody().size() > match.location->client_max_body_size)
+        {
+            responseStr = response.buildError(413, request, *_config);
             _closeAfterSend = true;
+            return;
+        }
+
+        if (request.getMethod() == METHOD_POST && !match.upload_dir.empty())
+        {
+            responseStr = response.handleUpload(request, match.upload_dir, *_config);
+            if (response.getStatusCode() >= 400)
+                _closeAfterSend = true;
+            return;
+        }
+        struct stat st;
+        int result;
+        if (stat(match.path.c_str(), &st) != 0)
+            responseStr = response.buildError(404, request, *_config);
+        else {
+            result = response.checkFile(st);
+            
+            if (request.getMethod() == METHOD_DELETE)
+                responseStr = response.handleDelete(request, match.path, result, *_config);
+            else if (result == 300)
+                responseStr = response.buildFromDirectory(request, match.path, match.autoindex, *_config);
+            else
+                responseStr = response.buildFromFile(request, match.path, result, *_config);
+            if (response.getStatusCode() >= 400)
+                _closeAfterSend = true;
+        }
     }
 }
 

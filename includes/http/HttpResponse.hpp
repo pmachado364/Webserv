@@ -22,12 +22,13 @@ class HttpResponse {
         std::string                         _connection; // Connection header value (keep-alive/close)
 
         static void initCodeMsg();
-        std::string _readFile(const std::string& path) const;
+        bool _readFile(const std::string& path, std::string& out) const;
         static std::string replaceAll(std::string str, const std::string& from, const std::string& to);
         std::string httpDate() const;
         static std::string _getMimeType(const std::string& path);
         static bool _fileExists(const std::string& path);
-        std::string _getErrorPage(int code, const ServerConfig* config);
+        static std::string _sanitizeFilename(const std::string& filename);
+        static bool _writeBinaryFile(const std::string& path, const std::string& data);
 
     public:
         HttpResponse();
@@ -35,13 +36,15 @@ class HttpResponse {
         HttpResponse(const HttpResponse& other);
         HttpResponse& operator=(const HttpResponse& other);
 
-        int checkFile(const std::string& path) const;
+        int checkFile(const struct stat& st) const;
 
         void build(int statusCode, const std::string& body, const std::string& contentType, const std::string& version);
-        std::string buildError(int statusCode, const HttpRequest& request);
-        std::string buildFromFile(const HttpRequest& request, const std::string& filePath);
-        std::string buildFromDirectory(const HttpRequest& request, const std::string& dirPath, bool autoindex);
-        std::string buildAutoIndex(const HttpRequest& request, const std::string& dirPath);
+        std::string buildError(int statusCode, const HttpRequest& request, ServerConfig &config);
+        std::string buildFromFile(const HttpRequest& request, const std::string& filePath, int checkResult, ServerConfig &config);
+        std::string buildFromDirectory(const HttpRequest& request, const std::string& dirPath, bool autoindex, ServerConfig &config);
+        std::string handleDelete(const HttpRequest& request, const std::string& path, int checkResult, ServerConfig &config);
+        std::string handleUpload(const HttpRequest& request, const std::string& uploadDir, ServerConfig &server);
+        std::string buildAutoIndex(const HttpRequest& request, const std::string& dirPath, ServerConfig &config);
         std::string serialize(HttpMethod method) const;
 
         const std::string& getStatusMessage(int code) const;

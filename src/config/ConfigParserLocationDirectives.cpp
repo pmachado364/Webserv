@@ -15,7 +15,8 @@ void ConfigParser::parseLocationRoot(LocationConfig &location)
 
 void ConfigParser::parseUploadDir(LocationConfig &location)
 {
-	location.upload_dir = expectWord();
+	//TODO: dont know if we should add toAbsolutePath here
+	location.upload_dir = toAbsolutePath(expectWord());
 	expect(SEMICOLON);
 }
 
@@ -38,6 +39,39 @@ void ConfigParser::parseLocationMethods(LocationConfig &location)
 	while (!isEnd() && peek().type == WORD)
 		location.methods.push_back(expectWord());
 
+	expect(SEMICOLON);
+}
+
+void ConfigParser::parseLocationClientMaxBodySize(LocationConfig &location)
+{
+	std::string sizeStr = expectWord();
+	size_t multiplier = 1;
+	if (!sizeStr.empty() && std::isalpha(sizeStr[sizeStr.size() - 1]))
+	{
+		char unit = sizeStr[sizeStr.size() - 1];
+		sizeStr.erase(sizeStr.size() - 1);
+		switch (unit)
+		{
+		case 'K':
+			multiplier *= 1024;
+			break;
+		case 'M':
+			multiplier *= 1024 * 1024;
+			break;
+		case 'G':
+			multiplier *= 1024 * 1024 * 1024;
+			break;
+		default:
+			throw parseError("Invalid size unit: " + std::string(1, unit));
+		}
+	}
+	if (sizeStr.empty())
+		throw parseError("Size value is missing");
+	size_t sizeValue = std::atoi(sizeStr.c_str());
+	if (sizeValue <= 0)
+		throw parseError("Invalid size value: " + sizeStr);
+	location.client_max_body_size = sizeValue * multiplier;
+	location.has_client_max_body_size = true;
 	expect(SEMICOLON);
 }
 

@@ -28,8 +28,9 @@ HttpRouteMatch HttpRouter::route(const HttpRequest& request, const ServerConfig&
 	}
 
 	//PATH
+	std::string effectiveRoot = bestLocation->upload_dir.empty() ? bestLocation->root : bestLocation->upload_dir;
 	std::string path = resolveFilesystemPath(*bestLocation, request);
-	if(!validatePath(path, bestLocation->root)) {
+	if(!validatePath(path, effectiveRoot)) {
 		match.errorCode = 404;
 		return match;
 	}
@@ -42,6 +43,7 @@ HttpRouteMatch HttpRouter::route(const HttpRequest& request, const ServerConfig&
 		match.cgiInterpreter = cgiInterpreter;
 	}
 	match.autoindex = bestLocation->autoindex;
+	match.upload_dir = bestLocation->upload_dir;
 	match.errorCode = 0;
 	return match;
 }
@@ -49,6 +51,8 @@ HttpRouteMatch HttpRouter::route(const HttpRequest& request, const ServerConfig&
 const LocationConfig* HttpRouter::findBestLocation(const HttpRequest& request, const ServerConfig& serverConfig) {
 	const std::vector<LocationConfig>& locations = serverConfig.getLocations();
 	const std::string& requestPath = request.getPath();
+
+	std::cout << "path: " << requestPath << std::endl;
 
 	const LocationConfig* bestMatch = NULL; //nao temos match aind
 	size_t bestMatchLength = 0;
@@ -104,7 +108,7 @@ bool HttpRouter::isCGI(const LocationConfig& location, const HttpRequest& reques
 }
 
 std::string HttpRouter::resolveFilesystemPath(const LocationConfig& location, const HttpRequest& request) {
-	const std::string& root = location.root;
+	const std::string& root = location.upload_dir.empty() ? location.root : location.upload_dir;
 	const std::string& locationPath = location.path;
 	const std::string& requestPath = request.getPath();
 

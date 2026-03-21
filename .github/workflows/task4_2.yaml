@@ -79,13 +79,13 @@ jobs:
               root www;
 
               location /upload/ {
-                  upload_dir uploads;
+                  upload_dir www/uploads;
                   methods POST DELETE;
                   client_max_body_size 10240;
               }
 
               location /forbidden/ {
-                  upload_dir uploads/forbidden;
+                  upload_dir www/uploads/forbidden;
                   methods POST DELETE;
                   client_max_body_size 10240;
               }
@@ -107,13 +107,13 @@ jobs:
         run: |
           CODE=$(curl -s -o /dev/null -w "%{http_code}" -F "file=@test.txt" http://127.0.0.1:8080/upload/)
           [ "$CODE" = "201" ] || (echo "FAIL: Expected 201, got $CODE"; tail -n +1 /tmp/webserv.log; exit 1)
-          # Expect one or more files in uploads directory
-          ls uploads | grep -q "test.txt" || (echo "FAIL: uploaded file not present in uploads/"; ls -la uploads; exit 1)
+          # Expect one or more files in upload directory
+          ls uploads | grep -q "test.txt" || (echo "FAIL: uploaded file not present in upload/"; ls -la upload; exit 1)
 
       # TEST 2: Upload with filename containing traversal is sanitized (stored as basename)
       - name: "Test 2: Path traversal filename is sanitized"
         run: |
-          rm -f uploads/passwd
+          rm -f upload/passwd
           CODE=$(curl -s -o /dev/null -w "%{http_code}" -F "file=@test.txt;filename=../../etc/passwd" http://127.0.0.1:8080/upload/)
           [ "$CODE" = "201" ] || (echo "FAIL: Expected 201, got $CODE"; exit 1)
           # Ensure stored file is uploads/passwd and not absolute path

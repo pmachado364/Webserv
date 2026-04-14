@@ -1,3 +1,2 @@
-#!/usr/bin/env python3
-
+# Simulate crash
 raise RuntimeError("500 Internal Server Error")

@@ -12,6 +12,7 @@
 #include <algorithm>
 #include "utils.hpp"
 #include <sys/wait.h>
+#include <fcntl.h>
 
 static std::string normalize(const std::string& name) {
     std::string result = name;
@@ -365,11 +366,16 @@ std::string HttpResponse::handleCgi(const HttpRequest& request, ServerConfig &co
     }
     if (pid == 0)
     {
+        int devnull = open("/dev/null", O_WRONLY);
         if (dup2(stdin_pipe[0], STDIN_FILENO) == -1) {
             cgi.freeEnv(envp);
             exit(1);
         }
         if (dup2(stdout_pipe[1], STDOUT_FILENO) == -1) {
+            cgi.freeEnv(envp);
+            exit(1);
+        }
+        if (dup2(devnull, STDERR_FILENO) == -1) {
             cgi.freeEnv(envp);
             exit(1);
         }

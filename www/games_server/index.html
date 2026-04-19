@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ARCADE — WEBSERV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&family=Exo+2:wght@200;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-cyan: #4fc3f7;
+            --accent-magenta: #ff2d95;
+            --accent-lime: #7CFC00;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: #05070a;
+            min-height: 100vh;
+            color: #e8f4fd;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(79, 195, 247, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255, 45, 149, 0.10) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 30% at 10% 80%, rgba(124, 252, 0, 0.06) 0%, transparent 50%);
+            pointer-events: none; z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(79, 195, 247, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79, 195, 247, 0.035) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none; z-index: 0;
+        }
+
+        .wrap {
+            position: relative; z-index: 1;
+            max-width: 1100px; margin: 0 auto;
+            padding: 4rem 2rem 6rem;
+            display: flex; flex-direction: column;
+            align-items: center;
+        }
+
+        .hero { text-align: center; margin-bottom: 3rem; animation: fadeDown 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(2rem, 6vw, 3.6rem);
+            letter-spacing: 0.12em;
+            background: linear-gradient(120deg, #4fc3f7, #ff2d95, #7CFC00);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 22px rgba(79, 195, 247, 0.4));
+        }
+        .subtitle {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: rgba(79, 195, 247, 0.6);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+        }
+
+        .card {
+            position: relative;
+            padding: 2rem 1.8rem 1.8rem;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(14px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 22px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s, box-shadow 0.25s;
+            overflow: hidden;
+            display: flex; flex-direction: column; gap: 0.8rem;
+        }
+        .card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 40%);
+            pointer-events: none;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: var(--card-accent, var(--accent-cyan));
+            box-shadow: 0 18px 50px rgba(0,0,0,0.55), 0 0 28px var(--card-glow, rgba(79, 195, 247, 0.25));
+        }
+
+        .card-icon {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 2.6rem;
+            color: var(--card-accent, var(--accent-cyan));
+            filter: drop-shadow(0 0 14px var(--card-accent, var(--accent-cyan)));
+            line-height: 1;
+        }
+        .card h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.4rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .card p {
+            font-size: 0.9rem;
+            color: rgba(232, 244, 253, 0.7);
+            line-height: 1.45;
+        }
+        .card .tag {
+            margin-top: auto;
+            align-self: flex-start;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.55rem;
+            letter-spacing: 0.12em;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid var(--card-accent, var(--accent-cyan));
+            color: var(--card-accent, var(--accent-cyan));
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .card.tetris { --card-accent: var(--accent-cyan); --card-glow: rgba(79, 195, 247, 0.28); }
+        .card.snake  { --card-accent: var(--accent-lime); --card-glow: rgba(124, 252, 0, 0.24); }
+        .card.g2048  { --card-accent: var(--accent-magenta); --card-glow: rgba(255, 45, 149, 0.28); }
+
+        .footer {
+            margin-top: 4rem;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.55rem;
+            letter-spacing: 0.2em;
+            color: rgba(79, 195, 247, 0.35);
+            text-align: center;
+        }
+        .footer span { color: var(--accent-magenta); }
+
+        @keyframes fadeDown { from { opacity: 0; transform: translateY(-28px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUp   { from { opacity: 0; transform: translateY(28px); }  to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="hero">
+            <h1 class="title">ARCADE</h1>
+            <p class="subtitle">Pick your poison — served through CGI</p>
+        </div>
+
+        <div class="grid">
+            <a class="card tetris" href="/cgi-bin/tetris.py">
+                <div class="card-icon">▞▚</div>
+                <h2>Tetris</h2>
+                <p>Stack tetrominoes, clear rows, chase the combo. Arrow keys to move, space to slam.</p>
+                <span class="tag">Play ▶</span>
+            </a>
+
+            <a class="card snake" href="/cgi-bin/snake.py">
+                <div class="card-icon">&gt;~~~</div>
+                <h2>Snake</h2>
+                <p>Slither, feast, grow. Don't bite yourself. Arrow keys or WASD.</p>
+                <span class="tag">Play ▶</span>
+            </a>
+
+            <a class="card g2048" href="/cgi-bin/g2048.py">
+                <div class="card-icon">2048</div>
+                <h2>2048</h2>
+                <p>Merge tiles, double the numbers, reach the legendary 2048. Arrow keys to slide.</p>
+                <span class="tag">Play ▶</span>
+            </a>
+        </div>
+
+        <div class="footer">
+            POWERED BY <span>WEBSERV</span> · CGI/1.1 · PYTHON3
+        </div>
+    </div>
+</body>
+</html>

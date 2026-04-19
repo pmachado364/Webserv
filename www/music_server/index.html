@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HIT VAULT — 2000 → Today</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syncopate:wght@700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg2: #12121a;
+            --accent: #1db954;
+            --accent2: #ff3b7a;
+            --accent3: #ffcc4d;
+            --text: #f2f2f5;
+            --muted: rgba(242, 242, 245, 0.6);
+            --card: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { min-height: 100%; }
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+            background:
+                radial-gradient(ellipse 70% 50% at 20% 0%, rgba(29, 185, 84, 0.18) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 40% at 90% 30%, rgba(255, 59, 122, 0.15) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 50% 100%, rgba(255, 204, 77, 0.10) 0%, transparent 55%);
+        }
+        body::after {
+            content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        .wrap { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+
+        .topbar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.9s ease both;
+        }
+        .brand {
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .vinyl {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 50% 50%, #fff 0 8%, var(--accent) 8% 10%, #111 10% 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            animation: spin 6s linear infinite;
+            flex-shrink: 0;
+            box-shadow: 0 6px 24px rgba(29, 185, 84, 0.25);
+        }
+        .vinyl::before {
+            content: ''; position: absolute; inset: 12%; border-radius: 50%;
+            background: repeating-radial-gradient(circle at center, rgba(255,255,255,0.04) 0 1px, transparent 1px 3px);
+        }
+        .vinyl::after {
+            content: ''; position: absolute; inset: 42%; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+        }
+        .brand-text .name {
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: 0.2em;
+        }
+        .brand-text .tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+        .random-btn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 0.7rem 1.2rem;
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .random-btn:hover { background: var(--accent); color: var(--bg); box-shadow: 0 0 28px rgba(29, 185, 84, 0.5); }
+
+        .hero {
+            margin-bottom: 4rem;
+            animation: fadeUp 0.9s 0.1s ease both;
+        }
+        .hero h1 {
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700;
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            line-height: 0.95;
+            letter-spacing: -0.02em;
+        }
+        .hero h1 .gradient {
+            background: linear-gradient(120deg, var(--accent), var(--accent2) 50%, var(--accent3));
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            margin-top: 1.2rem;
+            max-width: 640px;
+            font-size: 1.1rem;
+            line-height: 1.55;
+            color: var(--muted);
+        }
+
+        .section-title {
+            display: flex; align-items: baseline; justify-content: space-between;
+            margin-bottom: 1.5rem;
+            margin-top: 4rem;
+        }
+        .section-title h2 {
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+        }
+        .section-title .dot {
+            display: inline-block;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent);
+            margin-right: 0.6rem;
+            box-shadow: 0 0 12px var(--accent);
+            vertical-align: middle;
+        }
+        .section-title .hint {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        /* Years timeline */
+        .years {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 0.6rem;
+            animation: fadeUp 0.9s 0.25s ease both;
+        }
+        .year-btn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 1rem 0.2rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .year-btn:hover { border-color: var(--accent); transform: translateY(-3px); color: var(--accent); }
+        .year-btn.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+            box-shadow: 0 0 24px rgba(29, 185, 84, 0.4);
+        }
+
+        /* Year details vessel */
+        .now-playing {
+            margin-top: 1.5rem;
+            padding: 2rem;
+            background: linear-gradient(180deg, rgba(29, 185, 84, 0.06) 0%, var(--card) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            display: none;
+            animation: fadeUp 0.5s ease both;
+        }
+        .now-playing.shown { display: grid; grid-template-columns: 140px 1fr; gap: 2rem; align-items: center; }
+        .now-playing .art {
+            width: 140px; height: 140px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--bg);
+            letter-spacing: 0.05em;
+            box-shadow: 0 12px 40px rgba(29, 185, 84, 0.2);
+        }
+        .now-playing .label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.25em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+        }
+        .now-playing .song {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 0.3rem;
+        }
+        .now-playing .artist {
+            font-size: 1.1rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+        .now-playing .note {
+            font-size: 0.95rem;
+            line-height: 1.55;
+            color: rgba(242, 242, 245, 0.85);
+            margin-bottom: 0.8rem;
+        }
+        .now-playing .tags {
+            display: flex; flex-wrap: wrap; gap: 0.4rem;
+        }
+        .now-playing .tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.7rem;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Genres */
+        .genres {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            animation: fadeUp 0.9s 0.4s ease both;
+        }
+        .genre-card {
+            padding: 1.5rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .genre-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, var(--ga, var(--accent)), var(--gb, var(--accent2)));
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+        .genre-card:hover { transform: translateY(-4px); border-color: var(--ga, var(--accent)); }
+        .genre-card:hover::before { opacity: 0.1; }
+        .genre-card .icon {
+            font-size: 2rem;
+            margin-bottom: 0.6rem;
+            filter: drop-shadow(0 0 14px var(--ga, var(--accent)));
+            position: relative;
+        }
+        .genre-card .name {
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            position: relative;
+        }
+        .genre-card .sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+            margin-top: 0.3rem;
+            position: relative;
+        }
+
+        .genre-card.pop      { --ga: #ff3b7a; --gb: #ffcc4d; }
+        .genre-card.hiphop   { --ga: #ffcc4d; --gb: #ff7a3d; }
+        .genre-card.rock     { --ga: #e94e4e; --gb: #8b2f2f; }
+        .genre-card.rnb      { --ga: #a675f7; --gb: #5c6bff; }
+        .genre-card.edm      { --ga: #4fc3f7; --gb: #1db954; }
+        .genre-card.country  { --ga: #c59b5b; --gb: #8a5e2b; }
+        .genre-card.latin    { --ga: #ff5b5b; --gb: #ff3b7a; }
+        .genre-card.indie    { --ga: #7CFC00; --gb: #4fc3f7; }
+
+        /* Genre list vessel */
+        .genre-tracks {
+            margin-top: 1.5rem;
+            padding: 2rem;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, var(--card) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            display: none;
+        }
+        .genre-tracks.shown { display: block; animation: fadeUp 0.5s ease both; }
+        .genre-tracks h3 {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.6rem;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.3rem;
+        }
+        .genre-tracks .subline {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--muted);
+            letter-spacing: 0.12em;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+        .track {
+            display: grid;
+            grid-template-columns: 32px 1fr auto;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 0.5rem;
+            border-top: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+        .track:hover { background: rgba(255, 255, 255, 0.03); }
+        .track:first-of-type { border-top: none; }
+        .track .rank {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+        .track .main .title { font-weight: 600; font-size: 1.05rem; }
+        .track .main .art { color: var(--muted); font-size: 0.9rem; margin-top: 0.15rem; }
+        .track .yr {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--ga, var(--accent));
+            border: 1px solid var(--ga, var(--accent));
+            border-radius: 999px;
+            padding: 0.25rem 0.6rem;
+            letter-spacing: 0.1em;
+        }
+
+        .loading { color: var(--muted); font-style: italic; }
+
+        .footer {
+            margin-top: 5rem; padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem; letter-spacing: 0.2em;
+            color: var(--muted);
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .footer span { color: var(--accent); }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 640px) {
+            .now-playing.shown { grid-template-columns: 1fr; }
+            .now-playing .art { margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="topbar">
+            <div class="brand">
+                <div class="vinyl"></div>
+                <div class="brand-text">
+                    <div class="name">HIT VAULT</div>
+                    <div class="tag">// served by webserv · python CGI</div>
+                </div>
+            </div>
+            <button id="random-btn" class="random-btn">🎲 Surprise me</button>
+        </div>
+
+        <div class="hero">
+            <h1>
+                The <span class="gradient">biggest hits</span><br>
+                of every year since <span class="gradient">2000</span>.
+            </h1>
+            <p>A curated archive of the song that defined each year from 2000 to today, plus the iconic tracks that shaped each genre. Pick a year on the timeline, browse by genre, or hit the dice for a random plunge into the vault.</p>
+        </div>
+
+        <div class="section-title">
+            <h2><span class="dot"></span>By year</h2>
+            <span class="hint">Click a year ▶</span>
+        </div>
+        <div id="years" class="years"></div>
+        <div id="now-playing" class="now-playing"></div>
+
+        <div class="section-title">
+            <h2><span class="dot"></span>By genre</h2>
+            <span class="hint">8 genres · 5 classics each</span>
+        </div>
+        <div class="genres">
+            <div class="genre-card pop" data-genre="pop">
+                <div class="icon">🎤</div>
+                <div class="name">Pop</div>
+                <div class="sub">mainstream gold</div>
+            </div>
+            <div class="genre-card hiphop" data-genre="hiphop">
+                <div class="icon">🎧</div>
+                <div class="name">Hip-Hop</div>
+                <div class="sub">bars & beats</div>
+            </div>
+            <div class="genre-card rock" data-genre="rock">
+                <div class="icon">🎸</div>
+                <div class="name">Rock</div>
+                <div class="sub">loud forever</div>
+            </div>
+            <div class="genre-card rnb" data-genre="rnb">
+                <div class="icon">💜</div>
+                <div class="name">R&amp;B</div>
+                <div class="sub">velvet vocals</div>
+            </div>
+            <div class="genre-card edm" data-genre="edm">
+                <div class="icon">🎛️</div>
+                <div class="name">EDM</div>
+                <div class="sub">hands in the air</div>
+            </div>
+            <div class="genre-card country" data-genre="country">
+                <div class="icon">🤠</div>
+                <div class="name">Country</div>
+                <div class="sub">dusty anthems</div>
+            </div>
+            <div class="genre-card latin" data-genre="latin">
+                <div class="icon">🌶️</div>
+                <div class="name">Latin</div>
+                <div class="sub">global flame</div>
+            </div>
+            <div class="genre-card indie" data-genre="indie">
+                <div class="icon">🌿</div>
+                <div class="name">Indie</div>
+                <div class="sub">left of dial</div>
+            </div>
+        </div>
+        <div id="genre-tracks" class="genre-tracks"></div>
+
+        <div class="footer">
+            <span>✦</span> Data curated · rendered via Python CGI · no database needed <span>✦</span>
+        </div>
+    </div>
+
+<script>
+(function () {
+    const START = 2000, END = 2025;
+    const yearsEl = document.getElementById('years');
+    const npEl = document.getElementById('now-playing');
+    const trackEl = document.getElementById('genre-tracks');
+
+    // populate years
+    for (let y = START; y <= END; y++) {
+        const b = document.createElement('button');
+        b.className = 'year-btn';
+        b.textContent = y;
+        b.dataset.year = y;
+        b.addEventListener('click', () => loadYear(y, b));
+        yearsEl.appendChild(b);
+    }
+
+    async function loadYear(y, btn) {
+        document.querySelectorAll('.year-btn').forEach(x => x.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        npEl.classList.add('shown');
+        npEl.innerHTML = '<div class="loading">Loading ' + y + '...</div>';
+        try {
+            const r = await fetch('/cgi-bin/year.py?y=' + y);
+            const txt = await r.text();
+            const data = JSON.parse(txt);
+            renderYear(data);
+        } catch (e) {
+            npEl.innerHTML = '<div class="loading">The vault is silent. Try again.</div>';
+        }
+    }
+
+    function renderYear(d) {
+        const initials = (d.song || '??').replace(/[^A-Za-z0-9]/g, '').slice(0, 3).toUpperCase() || '---';
+        npEl.innerHTML = `
+            <div class="art">${initials}</div>
+            <div>
+                <div class="label">Biggest hit of ${d.year}</div>
+                <div class="song">${escapeHtml(d.song)}</div>
+                <div class="artist">${escapeHtml(d.artist)}</div>
+                <div class="note">${escapeHtml(d.note)}</div>
+                <div class="tags">
+                    ${(d.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    document.querySelectorAll('.genre-card').forEach(card => {
+        card.addEventListener('click', () => loadGenre(card.dataset.genre, card));
+    });
+
+    async function loadGenre(g, card) {
+        trackEl.classList.add('shown');
+        trackEl.innerHTML = '<div class="loading">Loading ' + g + '...</div>';
+        const ga = getComputedStyle(card).getPropertyValue('--ga').trim();
+        trackEl.style.setProperty('--ga', ga);
+        try {
+            const r = await fetch('/cgi-bin/genre.py?g=' + g);
+            const txt = await r.text();
+            const data = JSON.parse(txt);
+            renderGenre(data);
+            trackEl.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        } catch (e) {
+            trackEl.innerHTML = '<div class="loading">Channel crackles. Try again.</div>';
+        }
+    }
+
+    function renderGenre(d) {
+        let html = `<h3>${escapeHtml(d.name)}</h3><div class="subline">${escapeHtml(d.tagline)}</div>`;
+        d.tracks.forEach((t, i) => {
+            html += `
+                <div class="track">
+                    <div class="rank">${String(i+1).padStart(2, '0')}</div>
+                    <div class="main">
+                        <div class="title">${escapeHtml(t.song)}</div>
+                        <div class="art">${escapeHtml(t.artist)}</div>
+                    </div>
+                    <div class="yr">${escapeHtml(String(t.year))}</div>
+                </div>
+            `;
+        });
+        trackEl.innerHTML = html;
+    }
+
+    document.getElementById('random-btn').addEventListener('click', async () => {
+        try {
+            const r = await fetch('/cgi-bin/random_hit.py?t=' + Date.now());
+            const txt = await r.text();
+            const data = JSON.parse(txt);
+            const btn = document.querySelector('.year-btn[data-year="' + data.year + '"]');
+            if (btn) btn.scrollIntoView({behavior: 'smooth', block: 'center'});
+            document.querySelectorAll('.year-btn').forEach(x => x.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            npEl.classList.add('shown');
+            renderYear(data);
+        } catch (e) {}
+    });
+
+    // open the year 2000 by default so the page isn't empty
+    setTimeout(() => {
+        const first = document.querySelector('.year-btn[data-year="2000"]');
+        if (first) loadYear(2000, first);
+    }, 200);
+})();
+</script>
+</body>
+</html>

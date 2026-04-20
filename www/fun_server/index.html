@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FUN ZONE — WEBSERV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@200;400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #08060f;
+            --a1: #f59e0b;
+            --a2: #ec4899;
+            --a3: #8b5cf6;
+            --a4: #10b981;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f0eaff;
+            --muted: rgba(240, 234, 255, 0.55);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed; inset: 0; pointer-events: none; z-index: 0;
+            background:
+                radial-gradient(ellipse 70% 45% at 15% 0%, rgba(245,158,11,0.1) 0%, transparent 55%),
+                radial-gradient(ellipse 55% 40% at 85% 30%, rgba(236,72,153,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 40% at 50% 100%, rgba(139,92,246,0.08) 0%, transparent 55%);
+        }
+        body::after {
+            content: '';
+            position: fixed; inset: 0; pointer-events: none; z-index: 0;
+            background-image:
+                linear-gradient(rgba(245,158,11,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(245,158,11,0.02) 1px, transparent 1px);
+            background-size: 52px 52px;
+        }
+
+        .wrap {
+            position: relative; z-index: 1;
+            max-width: 1080px; margin: 0 auto;
+            padding: 4rem 2rem 6rem;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeDown 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .hero-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--a1);
+            margin-bottom: 0.8rem;
+            opacity: 0.8;
+        }
+        .hero h1 {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            background: linear-gradient(120deg, var(--a1), var(--a2) 50%, var(--a3));
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 24px rgba(245,158,11,0.35));
+        }
+        .hero p {
+            margin-top: 0.8rem;
+            font-size: 0.95rem;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+            gap: 2rem;
+            animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(16px) saturate(160%);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 2rem;
+            overflow: hidden;
+            position: relative;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+        .card::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 35%);
+            pointer-events: none;
+        }
+        .card:focus-within {
+            border-color: var(--card-color);
+            box-shadow: 0 0 28px var(--card-glow);
+        }
+
+        .card.compliment { --card-color: var(--a1); --card-glow: rgba(245,158,11,0.22); }
+        .card.fortune    { --card-color: var(--a2); --card-glow: rgba(236,72,153,0.22); }
+        .card.vibe       { --card-color: var(--a3); --card-glow: rgba(139,92,246,0.22); }
+        .card.namer      { --card-color: var(--a4); --card-glow: rgba(16,185,129,0.22); }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+        .card-icon {
+            font-size: 2rem;
+            line-height: 1;
+            filter: drop-shadow(0 0 12px var(--card-color));
+        }
+        .card-title-wrap h2 {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--card-color);
+        }
+        .card-title-wrap p {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 0.2rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        input[type="text"], textarea {
+            flex: 1;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: var(--text);
+            font-family: 'Exo 2', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            resize: none;
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--card-color);
+            box-shadow: 0 0 0 3px var(--card-glow);
+        }
+        input[type="text"]::placeholder, textarea::placeholder { color: var(--muted); }
+
+        .btn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 0.75rem 1.4rem;
+            background: transparent;
+            color: var(--card-color);
+            border: 1px solid var(--card-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+        .btn:hover {
+            background: var(--card-color);
+            color: var(--bg);
+            box-shadow: 0 0 24px var(--card-glow);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            min-height: 3.2rem;
+            padding: 1rem 1.2rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text);
+            display: none;
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        .result-box.shown { display: block; }
+        .result-box.loading { color: var(--muted); font-style: italic; }
+        .result-box.error   { color: #f87171; }
+
+        .result-score {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--card-color);
+            margin-bottom: 0.3rem;
+        }
+        .result-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.6rem;
+        }
+
+        .post-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.25em;
+            color: rgba(245, 158, 11, 0.25);
+            text-transform: uppercase;
+        }
+
+        @keyframes fadeDown { from { opacity: 0; transform: translateY(-28px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUp   { from { opacity: 0; transform: translateY(28px); }  to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn    { from { opacity: 0; transform: scale(0.95); }        to { opacity: 1; transform: scale(1); } }
+
+        @media (max-width: 560px) {
+            .grid { grid-template-columns: 1fr; }
+            .form-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <div class="hero">
+        <div class="hero-eyebrow">// webserv · post cgi · fun zone</div>
+        <h1>Fun Zone</h1>
+        <p>Four gadgets, all powered by POST requests to Python CGI scripts. Zero databases. Pure server-side.</p>
+    </div>
+
+    <div class="grid">
+
+        <!-- Compliment Machine -->
+        <div class="card compliment">
+            <div class="card-top">
+                <div class="card-icon">💛</div>
+                <div class="card-title-wrap">
+                    <h2>Compliment Machine</h2>
+                    <p>Type your name and receive a personalised compliment.</p>
+                </div>
+            </div>
+            <div class="post-label">POST /cgi-bin/compliment.py · field: name</div>
+            <div class="form-row">
+                <input type="text" id="comp-name" placeholder="Your name..." maxlength="60" />
+                <button class="btn" id="comp-btn" onclick="postCompliment()">Compliment Me</button>
+            </div>
+            <div class="result-box" id="comp-result"></div>
+        </div>
+
+        <!-- Fortune Teller -->
+        <div class="card fortune">
+            <div class="card-top">
+                <div class="card-icon">🔮</div>
+                <div class="card-title-wrap">
+                    <h2>Fortune Teller</h2>
+                    <p>Ask anything. The oracle answers in cryptic riddles.</p>
+                </div>
+            </div>
+            <div class="post-label">POST /cgi-bin/fortune.py · field: question</div>
+            <div class="form-row">
+                <input type="text" id="fort-q" placeholder="Ask your question..." maxlength="120" />
+                <button class="btn" id="fort-btn" onclick="postFortune()">Ask Oracle</button>
+            </div>
+            <div class="result-box" id="fort-result"></div>
+        </div>
+
+        <!-- Vibe Check -->
+        <div class="card vibe">
+            <div class="card-top">
+                <div class="card-icon">🌀</div>
+                <div class="card-title-wrap">
+                    <h2>Vibe Check</h2>
+                    <p>Describe your current mood and get an official vibe rating.</p>
+                </div>
+            </div>
+            <div class="post-label">POST /cgi-bin/vibe.py · field: mood</div>
+            <div class="form-row">
+                <input type="text" id="vibe-mood" placeholder="How are you feeling?" maxlength="120" />
+                <button class="btn" id="vibe-btn" onclick="postVibe()">Check Vibe</button>
+            </div>
+            <div class="result-box" id="vibe-result"></div>
+        </div>
+
+        <!-- Name Rater -->
+        <div class="card namer">
+            <div class="card-top">
+                <div class="card-icon">🧬</div>
+                <div class="card-title-wrap">
+                    <h2>Name Rater</h2>
+                    <p>Enter any name for a highly scientific analysis and score.</p>
+                </div>
+            </div>
+            <div class="post-label">POST /cgi-bin/name_rater.py · field: name</div>
+            <div class="form-row">
+                <input type="text" id="rate-name" placeholder="A name to rate..." maxlength="60" />
+                <button class="btn" id="rate-btn" onclick="postNameRater()">Rate It</button>
+            </div>
+            <div class="result-box" id="rate-result"></div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        fun zone · all results generated server-side via python3 cgi · webserv :8085
+    </div>
+</div>
+
+<script>
+function esc(s) {
+    return String(s).replace(/[&<>"']/g, c =>
+        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function postTo(url, body, resultId, btnId, renderFn) {
+    const box = document.getElementById(resultId);
+    const btn = document.getElementById(btnId);
+    box.className = 'result-box shown loading';
+    box.innerHTML = 'Consulting the server...';
+    btn.disabled = true;
+    try {
+        const r = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body
+        });
+        const text = await r.text();
+        const data = JSON.parse(text);
+        box.className = 'result-box shown';
+        box.innerHTML = renderFn(data);
+    } catch(e) {
+        box.className = 'result-box shown error';
+        box.innerHTML = 'The server is being mysterious. Try again.';
+    }
+    btn.disabled = false;
+}
+
+function postCompliment() {
+    const name = document.getElementById('comp-name').value.trim() || 'friend';
+    postTo('/cgi-bin/compliment.py',
+        'name=' + encodeURIComponent(name),
+        'comp-result', 'comp-btn',
+        d => `<strong>${esc(d.greeting)}</strong> ${esc(d.compliment)}`
+    );
+}
+
+function postFortune() {
+    const q = document.getElementById('fort-q').value.trim() || 'What lies ahead?';
+    postTo('/cgi-bin/fortune.py',
+        'question=' + encodeURIComponent(q),
+        'fort-result', 'fort-btn',
+        d => `<div style="font-style:italic;margin-bottom:.4rem;color:var(--muted)">"${esc(d.question)}"</div>${esc(d.fortune)}`
+    );
+}
+
+function postVibe() {
+    const mood = document.getElementById('vibe-mood').value.trim() || 'neutral';
+    postTo('/cgi-bin/vibe.py',
+        'mood=' + encodeURIComponent(mood),
+        'vibe-result', 'vibe-btn',
+        d => `<div style="font-size:2rem;margin-bottom:.4rem">${esc(d.emoji)}</div>
+              <div style="font-family:'Orbitron',monospace;font-weight:700;color:var(--card-color);font-size:1.1rem;margin-bottom:.3rem">${esc(d.vibe)}</div>
+              ${esc(d.verdict)}`
+    );
+}
+
+function postNameRater() {
+    const name = document.getElementById('rate-name').value.trim() || 'Anonymous';
+    postTo('/cgi-bin/name_rater.py',
+        'name=' + encodeURIComponent(name),
+        'rate-result', 'rate-btn',
+        d => `<div class="result-score">${esc(String(d.score))}<span style="font-size:1rem;opacity:.5">/100</span></div>
+              <div class="result-label">${esc(d.tier)}</div>
+              ${esc(d.analysis)}`
+    );
+}
+
+document.querySelectorAll('input[type="text"]').forEach(inp => {
+    inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter') inp.closest('.card').querySelector('.btn').click();
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HUB — WEBSERV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@200;400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #060810;
+            --accent: #4fc3f7;
+            --accent2: #a78bfa;
+            --accent3: #34d399;
+            --glass: rgba(255, 255, 255, 0.045);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #e8f4fd;
+            --muted: rgba(232, 244, 253, 0.55);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed; inset: 0; pointer-events: none; z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(79, 195, 247, 0.1) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 40% at 90% 80%, rgba(167, 139, 250, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 35% at 5% 60%, rgba(52, 211, 153, 0.06) 0%, transparent 50%);
+        }
+        body::after {
+            content: '';
+            position: fixed; inset: 0; pointer-events: none; z-index: 0;
+            background-image:
+                linear-gradient(rgba(79, 195, 247, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79, 195, 247, 0.025) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .wrap {
+            position: relative; z-index: 1;
+            max-width: 1100px; margin: 0 auto;
+            padding: 4rem 2rem 6rem;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeDown 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .hero-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+        .hero h1 {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text);
+            text-shadow: 0 0 40px rgba(79, 195, 247, 0.4), 0 0 80px rgba(79, 195, 247, 0.15);
+        }
+        .hero p {
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
+
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+        }
+
+        .card {
+            position: relative;
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            padding: 2rem;
+            background: var(--glass);
+            backdrop-filter: blur(16px) saturate(160%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s, box-shadow 0.25s;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 40%);
+            pointer-events: none;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: var(--card-color, var(--accent));
+            box-shadow: 0 18px 50px rgba(0,0,0,0.5), 0 0 30px var(--card-glow, rgba(79,195,247,0.2));
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+        }
+        .card-icon {
+            font-size: 2.2rem;
+            line-height: 1;
+            filter: drop-shadow(0 0 12px var(--card-color, var(--accent)));
+        }
+        .card-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.12em;
+            padding: 0.3rem 0.7rem;
+            border: 1px solid var(--card-color, var(--accent));
+            color: var(--card-color, var(--accent));
+            border-radius: 999px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .card h2 {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        .card p {
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.55;
+            margin-bottom: 1.4rem;
+        }
+
+        .card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid var(--border);
+        }
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .meta-key {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .meta-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--card-color, var(--accent));
+        }
+
+        /* per-card colors */
+        .card.default  { --card-color: #4fc3f7; --card-glow: rgba(79,195,247,0.22); }
+        .card.mirror   { --card-color: #94a3b8; --card-glow: rgba(148,163,184,0.18); }
+        .card.arcade   { --card-color: #ff2d95; --card-glow: rgba(255,45,149,0.22); }
+        .card.music    { --card-color: #1db954; --card-glow: rgba(29,185,84,0.22); }
+        .card.fun      { --card-color: #f59e0b; --card-glow: rgba(245,158,11,0.22); }
+
+        .footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.25em;
+            color: rgba(79, 195, 247, 0.3);
+            text-transform: uppercase;
+        }
+
+        @keyframes fadeDown { from { opacity: 0; transform: translateY(-28px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUp   { from { opacity: 0; transform: translateY(28px); }  to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 480px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+
+        <div class="hero">
+            <div class="hero-eyebrow">// webserv · port directory</div>
+            <h1>HUB</h1>
+            <p>All servers, one place. Pick your destination.</p>
+        </div>
+
+        <div class="section-label">Active servers</div>
+
+        <div class="grid">
+
+            <a class="card default" href="http://localhost:8081">
+                <div class="card-header">
+                    <div class="card-icon">⚙️</div>
+                    <span class="card-badge">default</span>
+                </div>
+                <h2>Webserv Core</h2>
+                <p>The main demo server. Showcases CGI scripts, HTML pages, file uploads with DELETE support, and directory listing.</p>
+                <div class="card-meta">
+                    <div class="meta-row">
+                        <span class="meta-key">Host</span>
+                        <span class="meta-val">127.0.0.1</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-key">Port</span>
+                        <span class="meta-val">8081</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-key">Methods</span>
+                        <span class="meta-val">GET · POST · DELETE</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card mirror" href="http://localhost:8082">
+                <div class="card-header">
+                    <div class="card-icon">🪞</div>
+                    <span class="card-badge">mirror</span>
+                </div>
+                <h2>Mirror Server</h2>
+                <p>Identical configuration to the Core server, running on a second port. Used to test multi-listener behaviour and virtual hosting.</p>
+                <div class="card-meta">
+                    <div class="meta-row">
+                        <span class="meta-key">Host</span>
+                        <span class="meta-val">127.0.0.1</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-key">Port</span>
+                        <span class="meta-val">8082</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-key">Methods</span>
+                        <span class="meta-val">GET · POST · DELETE</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card arcade" href="http://localhost:8083">
+                <div class="card-header">
+                    <div class="card-icon">🕹️</div>
+                    <span class="card-badge">arcade</span>
+                </div>
+                <h2>Arcade</h2>
+                <p>Classic browser games served entirely through Python CGI — Tetris, Snake, and 2048. No JS bundles, no frameworks, just CGI.</p>
+                <div class="card-meta">
+                    <div class="meta-row">
+                        <span class="meta-key">Host</span>
+                        <span class="meta-val">127.0.0.1</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-key">Port</span>
+                        <span class="meta-val">8083</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-key">Methods</span>
+                        <span class="meta-val">GET · POST</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card music" href="http://localhost:8084">
+                <div class="card-header">
+                    <div class="card-icon">🎵</div>
+                    <span class="card-badge">hit vault</span>
+                </div>
+                <h2>Hit Vault</h2>
+                <p>The biggest song of every year since 2000, plus iconic genre classics — Pop, Hip-Hop, Rock, R&amp;B, EDM and more. Powered by Python CGI.</p>
+                <div class="card-meta">
+                    <div class="meta-row">
+                        <span class="meta-key">Host</span>
+                        <span class="meta-val">127.0.0.1</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-key">Port</span>
+                        <span class="meta-val">8084</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-key">Methods</span>
+                        <span class="meta-val">GET · POST</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card fun" href="http://localhost:8085">
+                <div class="card-header">
+                    <div class="card-icon">🎲</div>
+                    <span class="card-badge">fun zone</span>
+                </div>
+                <h2>Fun Zone</h2>
+                <p>Interactive POST-powered CGI gadgets — compliment generator, fortune teller, vibe checker, and a name rater. All server-side, no trickery.</p>
+                <div class="card-meta">
+                    <div class="meta-row">
+                        <span class="meta-key">Host</span>
+                        <span class="meta-val">127.0.0.1</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-key">Port</span>
+                        <span class="meta-val">8085</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-key">Methods</span>
+                        <span class="meta-val">GET · POST (CGI)</span>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+
+        <div class="footer">
+            webserv · 5 servers · python3 cgi · no frameworks
+        </div>
+    </div>
+</body>
+</html>

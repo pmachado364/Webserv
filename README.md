@@ -7,10 +7,10 @@
 ## Documentation
 
 - **[What is this project?](#overview)** — Read on below for a high-level summary
-- **[User Documentation](USER_DOC.md)** — How to build, configure, and run the server
-- **[Developer Documentation](DEV_DOC.md)** — Architecture decisions, event loop, CGI internals
-- **[Configuration Reference](CONFIG.md)** — Supported directives and example configurations
-- **[Configuration Grammar](GRAMMAR.md)** — Formal syntax and validation rules
+- **[User Documentation](documentation/USER_DOC.md)** — How to build, configure, and run the server
+- **[Developer Documentation](documentation/DEV_DOC.md)** — Architecture decisions, event loop, CGI internals
+- **[Configuration Reference](documentation/CONFIG.md)** — Supported directives and example configurations
+- **[Configuration Grammar](documentation/GRAMMAR.md)** — Formal syntax and validation rules
 
 ---
 
